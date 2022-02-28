@@ -20,12 +20,12 @@ type MyRealCustomError struct {
 }
 
 var (
-	ErrInternal = MyRealCustomError{
+	ErrInternal = &MyRealCustomError{
 		Code:    50000,
 		Message: "error message for front-end to display",
 		Detail:  "real custom error detail, for dev to debug",
 	}
-	ErrNotFound = MyRealCustomError{
+	ErrNotFound = &MyRealCustomError{
 		Code:    400004,
 		Message: "not found bla bla, error message for front-end to display",
 		Detail:  "not found bla bla, real custom error detail, for dev to debug",
@@ -68,9 +68,11 @@ func RealErrorHandleMiddleware(err error) error {
 	if errors.Is(err, ErrArticleNotExist) {
 		return err
 	}
-	if errors.Is(err, &ErrInternal) {
+	if errors.Is(err, ErrInternal) {
 		log.Println(ErrInternal.Detail)
-		return &ErrInternal
+		_ = errors.As(err, &ErrInternal)
+		log.Println(ErrInternal.Detail)
+		return ErrInternal
 	}
 	return err
 }
